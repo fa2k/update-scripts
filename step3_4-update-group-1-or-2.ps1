@@ -5,7 +5,6 @@ $ErrorActionPreference = "Stop"
 
 $groupNumber = Read-Host -Prompt "Enter the group number to update, 1 or 2: "
 
-
 Write-Host ""
 
 $sourceGpoName = "General software install - P0"
@@ -17,24 +16,25 @@ Write-Host "Importing settings into '$gpoName'..."
 $targetGpo = Get-GPO -Name $gpoName
 $targetGpo.Import($backup) | Out-Null
 
+Write-Host "Reading the list of updates from a file..."
+$updates = Get-Content -Path D:\updatelist.txt | `
+                ForEach-Object { Get-WsusUpdate -UpdateId $_ } | `
+                Get-WsusUpdate
 
-$TargetMembers = Get-ADGroupMember -Identity PatchGroup0
-
-$secCritUpdates = Get-WsusUpdate -Classification Security -Approval Unapproved
-
-Write-Host "Approving security updates for PatchGroup0-SecOnly..."
-$updates = Get-WsusUpdate -Approval Unapproved
- kkecktodo | `
-        Approve-WsusUpdate -Action Install -TargetGroupName PatchGroup0-SecOnly
-Get-WsusUpdate -Classification Critical -Approval Unapproved | `
-        Approve-WsusUpdate -Action Install -TargetGroupName PatchGroup0-SecOnly
-
-
-Get-WsusUpdate -Approval Unapproved | `
-        Approve-WsusUpdate -Action Install -TargetGroupName PatchGroup0-All
+Write-Host "Approving security updates for PatchGroup$groupNumber-SecOnly..."
+$updates | Where-Object Classification -eq Security | `
+        Approve-WsusUpdate -Action Install -TargetGroupName PatchGroup$groupNumber-SecOnly
+$updates | Where-Object Classification -eq Critical | `
+        Approve-WsusUpdate -Action Install -TargetGroupName PatchGroup$groupNumber-SecOnly
+        
+Write-Host "Approving all updates for PatchGroup$groupNumber-All..."
+$updates | Approve-WsusUpdate -Action Install -TargetGroupName PatchGroup$groupNumber-All
 
 Write-Host "Run the Cleanup Tool"
 Get-WsusServer | 
     Invoke-WsusserverCleanup -CleanupObsoleteUpdates `
              -CleanupUnneededContentFiles -CompressUpdates `
              -DeclineExpiredUpdates -DeclineSupersededUpdates
+
+Write-Host "Calling the scheduling tool $PSScriptRoot\internal-scheduler.ps1..."
+& "$PSScriptRoot\internal-scheduler.ps1" $groupNumber

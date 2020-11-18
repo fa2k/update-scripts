@@ -1,6 +1,7 @@
 ﻿# Update process -- Step 1 = download updates
 
 $ErrorActionPreference = "Stop"
+$DataDrive = "D:"
 
 Write-Host ""
 Write-Host ""
@@ -36,7 +37,7 @@ Write-Host "Press Ctrl-C to abort now if not connected to the Internet (and re-r
 Write-Host ""
 pause
 
-if (Get-ChildItem -Path updatelist.txt)
+if (Test-Path $DataDrive\updatelist.txt)
 {
     Write-Warning "UPDATE LIST FILE updatelist.txt EXISTS."
     Write-Host ""
@@ -56,15 +57,15 @@ Write-Host ""
 Write-Host ""
 
 Write-Host "Downloading MS Office 2019 updates..."
-Start-Process "D:\Applications\Office2019\ODT\nsc-dl-update-command.bat" `
-        -WorkingDirectory "D:\Applications\Office2019\ODT\" `
+Start-Process "$DataDrive\Applications\Office2019\ODT\nsc-dl-update-command.bat" `
+        -WorkingDirectory "$DataDrive\Applications\Office2019\ODT\" `
         -NoNewWindow -Wait
 
 Write-Host ""
 Write-Host ""
 
 Write-Host "Syncing Linux packages by running a command on the 'downloader' VM..."
-ssh root@192.168.1.69 /data/repo/sync-rpm.sh
+#ssh root@192.168.1.69 /data/repo/sync-rpm.sh
 Write-Host ""
 Write-Host ""
 
@@ -79,16 +80,11 @@ while ($wsusSync.StartTime -le $preSyncTime) {
 Write-Host "WSUS sync result: $($wsusSync.Result)"
 Write-Host ""
 
-
-Write-Host "Cleaning up some unused WSUS updates before approving..."
-
-Write-Host "Getting list of unapproved updates..."
+Write-Host "Getting a list of unapproved updates..."
 $updates = Get-WsusUpdate -Approval Unapproved
-if ($updates)
-{
-    Write-Host "Writing a list of updates to updatelist.txt."
-    $updates | Select-Object -Property UpdateId | Out-File -FilePath .\updatelist.txt -Append
-}
+
+Write-Host "Writing a list of updates to updatelist.txt."
+$updates | Select-Object -ExpandProperty UpdateId | Out-File -FilePath $DataDrive\updatelist.txt -Append
 
 Write-Host "Decline language packs with languages other than Norwegian or English (UK/US)"
 $updates  | 
@@ -119,7 +115,7 @@ $updates |
 
 
 Write-Host "Removing declined updates from list..."                
-$updates = $updates | Where-Object Approval -eq NotApproved
+$updates = $updates | Where-Object Approval -eq Declined
 
 Write-Host "Accepting licenses if necessary..."
 $license = $updates | Where {$_.RequiresLicenseAgreementAcceptance}
@@ -148,7 +144,7 @@ Get-WsusServer |
 
 $progress = $wsusServer.GetContentDownloadProgress()
 Write-Host "Waiting for WSUS downloading to finish..."
-while ($progress.DownloadedBytes -eq $progress.TotalBytesToDownload) {
+while ($progress.DownloadedBytes -ne $progress.TotalBytesToDownload) {
     Start-Sleep -Seconds 60
     $progress = $wsusServer.GetContentDownloadProgress()
     Write-Host "Remaining: $(($progress.TotalBytesToDownload - $progress.DownloadedBytes)/1073741824) GB"
@@ -156,6 +152,6 @@ while ($progress.DownloadedBytes -eq $progress.TotalBytesToDownload) {
 
 Write-Host "__________________________________________________"
 Write-Host "Sync complete!"
-Write-Host "After also completi ng the manual syncs, the server may be connected back to the NSC"
+Write-Host "After also completing the manual syncs, the server may be connected back to the NSC"
 Write-Host "network and disconnected from the Internet."
 Write-Host ""

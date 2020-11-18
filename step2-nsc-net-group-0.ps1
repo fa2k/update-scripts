@@ -24,7 +24,5 @@ Write-Host "Copying Linux updates to /data/common/repo..."
 
 #ssh root@192.168.1.69 /data/repo/to-local-repo.sh
 
-Write-Host "Calling the scheduling tool..."
-Write-Host "$PSScriptRoot\internal-scheduler.ps1"
-
+Write-Host "Calling the scheduling tool $PSScriptRoot\internal-scheduler.ps1..."
 & "$PSScriptRoot\internal-scheduler.ps1" 0
