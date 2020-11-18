@@ -1,0 +1,3 @@
+# To do when putting the scripts into production
+
+Uncomment the ssh.... lines.
