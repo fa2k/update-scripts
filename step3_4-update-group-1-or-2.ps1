@@ -22,10 +22,6 @@ $TargetMembers = Get-ADGroupMember -Identity PatchGroup0
 
 $secCritUpdates = Get-WsusUpdate -Classification Security -Approval Unapproved
 
-#$license = $updates | Where {$_.RequiresLicenseAgreementAcceptance}
-#$license | Select Title
-#$license | ForEach {$_.AcceptLicenseAgreement()}
-
 Write-Host "Approving security updates for PatchGroup0-SecOnly..."
 $updates = Get-WsusUpdate -Approval Unapproved
  kkecktodo | `
