@@ -82,6 +82,7 @@ Write-Host ""
 
 Write-Host "Getting a list of unapproved updates..."
 $updates = Get-WsusUpdate -Approval Unapproved
+Write-Host "Number of unapproved updates: $updates.count."
 
 Write-Host "Writing a list of updates to updatelist.txt."
 $updates | Select-Object -ExpandProperty UpdateId | Out-File -FilePath $DataDrive\updatelist.txt -Append
