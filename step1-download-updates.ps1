@@ -82,10 +82,7 @@ Write-Host ""
 
 Write-Host "Getting a list of unapproved updates..."
 $updates = Get-WsusUpdate -Approval Unapproved
-Write-Host "Number of unapproved updates: $updates.count."
-
-Write-Host "Writing a list of updates to updatelist.txt."
-$updates | Select-Object -ExpandProperty UpdateId | Out-File -FilePath $DataDrive\updatelist.txt -Append
+Write-Host "Number of unapproved updates: $($updates.count)."
 
 Write-Host "Decline language packs with languages other than Norwegian or English (UK/US)"
 $updates  | 
@@ -115,12 +112,16 @@ $updates |
                 Deny-WsusUpdate
 
 
-Write-Host "Removing declined updates from list..."                
-$updates = $updates | Where-Object Approval -eq Declined
+Write-Host "Refresh update information and remove declined updates from list..."                
+$updates = $updates | ForEach-Object { Get-WsusUpdate -UpdateId $_.UpdateId } | `
+                                     Where-Object Approval -ne Declined
+
+Write-Host "Writing a list of updates to updatelist.txt."
+$updates | Select-Object -ExpandProperty UpdateId | `                Out-File -FilePath $DataDrive\updatelist.txt -Append
 
 Write-Host "Accepting licenses if necessary..."
-$license = $updates | Where {$_.RequiresLicenseAgreementAcceptance}
-$license | ForEach {$_.AcceptLicenseAgreement()}
+$license = $updates | Where-Object { $_.LicenseAgreement -ne "This update does not have Microsoft Software License Terms." }
+$license | ForEach {$_.Update.AcceptLicenseAgreement()}
 
 
 Write-Host "__________________________________________________"
@@ -138,7 +139,7 @@ $updates | Approve-WsusUpdate -Action Install -TargetGroupName PatchGroup0-All
 
 
 Write-Host "Runnig the WSUS Cleanup Tool..."
-Get-WsusServer | 
+$wsusServer | 
     Invoke-WsusserverCleanup -CleanupObsoleteUpdates `
              -CleanupUnneededContentFiles -CompressUpdates `
              -DeclineExpiredUpdates -DeclineSupersededUpdates
