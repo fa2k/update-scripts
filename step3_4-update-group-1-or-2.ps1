@@ -18,8 +18,7 @@ $targetGpo.Import($backup) | Out-Null
 
 Write-Host "Reading the list of updates from a file..."
 $updates = Get-Content -Path D:\updatelist.txt | `
-                ForEach-Object { Get-WsusUpdate -UpdateId $_ } | `
-                Get-WsusUpdate
+                ForEach-Object { Get-WsusUpdate -UpdateId $_ }
 
 Write-Host "Approving security updates for PatchGroup$groupNumber-SecOnly..."
 $updates | Where-Object Classification -eq Security | `
