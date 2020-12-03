@@ -58,3 +58,11 @@ ForEach ($group in @(0, 1, 2)) {
     $gpo | New-GPLink -Target "OU=Servers,OU=Nsc_computers,DC=nscamg,DC=local"
     $gpo | Set-PatchGroupPermissions -PatchGroupName "PatchGroup$group"
 }
+
+ForEach ($group in @(0, 1, 2)) {
+    $gpo = New-GPO -Name "Office 2019 update point - P$group" | `                    Set-GPRegistryValue -Key "HKLM\SOFTWARE\Policies\Microsoft\office\16.0\common\officeupdate" `                                -ValueName "updatepath" -Type String `
+                                -Value "\\endpoint.nscamg.local\Applic\Office2019InstallPoint\$group"
+    $gpo | New-GPLink -Target "OU=LIMS,OU=Nsc_computers,DC=nscamg,DC=local"
+    $gpo | New-GPLink -Target "OU=With LIMS PC software,OU=64 bit,OU=MTU,OU=Nsc_computers,DC=nscamg,DC=local"
+    $gpo | Set-PatchGroupPermissions -PatchGroupName "PatchGroup$group"
+}

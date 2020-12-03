@@ -1,0 +1,20 @@
+<Configuration ID="adad21f8-f642-4b4d-972c-b394ff0d10ca">
+  <Info Description="General NSC network install" />
+  <Add OfficeClientEdition="64" Channel="PerpetualVL2019" SourcePath="C:\TEMP\ODT" AllowCdnFallback="FALSE" ForceUpgrade="TRUE">
+    <Product ID="Standard2019Volume" PIDKEY="JJD74-HNPDC-FKDV6-9RDBH-T3C7B">
+      <Language ID="en-us" />
+      <Language ID="nb-no" />
+      <ExcludeApp ID="Groove" />
+      <ExcludeApp ID="OneDrive" />
+      <ExcludeApp ID="OneNote" />
+    </Product>
+  </Add>
+  <Property Name="SharedComputerLicensing" Value="0" />
+  <Property Name="PinIconsToTaskbar" Value="TRUE" />
+  <Property Name="SCLCacheOverride" Value="0" />
+  <Updates Enabled="TRUE" UpdatePath="\\endpoint.nscamg.local\Applic\Software Install\Microsoft Office\Office 2019 Windows\ODT" />
+  <RemoveMSI />
+  <AppSettings>
+    <Setup Name="Company" Value="Oslo Universitetssykehus HF" />
+  </AppSettings>
+</Configuration>

@@ -1,11 +1,12 @@
-﻿Write-Host "Step 2 -- Updating patch group."
-Write-Host "Note: First check the status of previous group (0 or 1) using check-status.ps1 and manual methods."
-Write-Host ""
+﻿
 $ErrorActionPreference = "Stop"
 
-$groupNumber = Read-Host -Prompt "Enter the group number to update, 1 or 2: "
-
+Write-Host "Step 3/4 -- Updating patch group."
+Write-Host "Note: First check the status of previous group (0 or 1) using check-status.ps1 and manual methods."
 Write-Host ""
+Write-Host ""
+
+$groupNumber = Read-Host -Prompt "Enter the group number to update, 1 or 2: "
 
 $sourceGpoName = "General software install - P0"
 $gpoName = "General software install - P$groupNumber"
@@ -37,3 +38,10 @@ Get-WsusServer |
 
 Write-Host "Calling the scheduling tool $PSScriptRoot\internal-scheduler.ps1..."
 & "$PSScriptRoot\internal-scheduler.ps1" $groupNumber
+
+Write-Host "Deleting old version of MS Office 2019 updates..."
+Remove-Item -Recurse -Force "I:\Office2019InstallPoint\$groupNumber"
+Write-Host "Copying new MS Office 2019 updates..."
+Copy-Item -Path "D:\Applications\Office2019\ODT\Office" `
+            -Destination "I:\Office2019InstallPoint\$groupNumber\Office" `
+            -Recurse

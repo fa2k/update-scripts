@@ -26,3 +26,10 @@ Write-Host "Copying Linux updates to /data/common/repo..."
 
 Write-Host "Calling the scheduling tool $PSScriptRoot\internal-scheduler.ps1..."
 & "$PSScriptRoot\internal-scheduler.ps1" 0
+
+Write-Host "Deleting old version of MS Office 2019 updates..."
+Remove-Item -Recurse -Force I:\Office2019InstallPoint\0
+Write-Host "Copying new MS Office 2019 updates..."
+Copy-Item -Path "D:\Applications\Office2019\ODT\Office" `
+            -Destination "I:\Office2019InstallPoint\0\Office" `
+            -Recurse
