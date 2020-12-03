@@ -114,7 +114,7 @@ $updates |
 
 Write-Host "Refresh update information and remove declined updates from list..."                
 $updates = $updates | ForEach-Object { Get-WsusUpdate -UpdateId $_.UpdateId } | `
-                                     Where-Object Approval -ne Declined
+                                     Where-Object Approved -ne "Declined."
 
 Write-Host "Writing a list of updates to updatelist.txt."
 $updates | Select-Object -ExpandProperty UpdateId | `                Out-File -FilePath $DataDrive\updatelist.txt -Append
