@@ -18,8 +18,6 @@ $forceRebootTime = $now.Date.AddHours(22)
 Write-Host "Forced reboot at:      $forceRebootTime"
 $updateDefinitionsTime = $now.Date.AddHours(22).AddMinutes(50)
 Write-Host "Definitions update at: $updateDefinitionsTime"
-$avScanTime = $now.Date.AddDays(1).AddHours(3)
-Write-Host "Antivirus scan at:     $avScanTime"
 
 Write-Host ""
 
@@ -40,10 +38,11 @@ foreach ($task in $xml.ScheduledTasks.TaskV2) {
         $task.Properties.Task.Triggers.TimeTrigger.StartBoundary = $updateDefinitionsTime.ToString("s")
         Write-Host "Successfully modified Update definitions time."
     }
-    if ($task.name -eq 'Run AV scan') {
-        $task.Properties.Task.Triggers.TimeTrigger.StartBoundary = $avScanTime.ToString("s")
-        Write-Host "Successfully modified Run AV scan time."
-    }
+    # AV SCAN -- Disabled because we don't know how to trigger a Full Scan using the commnand line
+    #if ($task.name -eq 'Run AV scan') {
+    #    $task.Properties.Task.Triggers.TimeTrigger.StartBoundary = $avScanTime.ToString("s")
+    #    Write-Host "Successfully modified Run AV scan time."
+    #}
 }
 $xml.Save($xmlPath)
 Write-Host "Importing changes back into GPO: $scheduledTaskGpo"
