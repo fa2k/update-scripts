@@ -27,6 +27,7 @@ if ($UnknownComputers)
 Write-Host "Getting new cumulative updates from updatelist file..."
 if (Test-Path D:\updatelist.txt) {
     Get-Content -Path D:\updatelist.txt | `
+                    Where-Object { $_ } | ` # Not empty string
                     ForEach-Object { Get-WsusUpdate -UpdateId $_ } | `
                     Where-Object { $_.Update.Title -match "^\d\d\d\d-\d\d Cumulative " } | `
                     Tee-Object -Variable NewCumUpdates
