@@ -116,8 +116,12 @@ Write-Host "Refresh update information and remove declined updates from list..."
 $updates = $updates | ForEach-Object { Get-WsusUpdate -UpdateId $_.UpdateId } | `
                                      Where-Object Approved -ne "Declined."
 
+
+Write-Host "Number of new updates after declining: $($updates.count)."
+
 Write-Host "Writing a list of updates to updatelist.txt."
-$updates | Select-Object -ExpandProperty UpdateId | `                Out-File -FilePath $DataDrive\updatelist.txt -Append
+$updates | Select-Object -ExpandProperty UpdateId | `
+                Out-File -FilePath $DataDrive\updatelist.txt -Append
 
 Write-Host "Accepting licenses if necessary..."
 $license = $updates | Where-Object { $_.LicenseAgreement -ne "This update does not have Microsoft Software License Terms." }
